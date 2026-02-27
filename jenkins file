@@ -1,40 +1,58 @@
 pipeline {
     agent any
 
+    options {
+        timestamps()
+    }
+
+    environment {
+        PROJECT_DIR = "JtProject"
+    }
+
     stages {
 
         stage('Build') {
             steps {
-                dir('JtProject') {
-                    sh './mvnw clean package'
+                dir("${PROJECT_DIR}") {
+                    sh 'chmod +x mvnw'
+                    sh './mvnw clean package -DskipTests'
                 }
             }
         }
 
         stage('Test') {
             steps {
-                dir('JtProject') {
+                dir("${PROJECT_DIR}") {
                     sh './mvnw test'
                 }
+            }
+        }
+
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'JtProject/target/*.jar', fingerprint: true
             }
         }
 
         stage('Deploy') {
             steps {
                 echo "Deploying application..."
+                // Add real deployment logic here if needed
             }
         }
     }
 
     post {
+        success {
+            echo '✅ Pipeline succeeded!'
+        }
+
+        failure {
+            echo '❌ Pipeline failed!'
+        }
+
         always {
             cleanWs()
-        }
-        success {
-            echo 'Pipeline succeeded!'
-        }
-        failure {
-            echo 'Pipeline failed!'
         }
     }
 }
