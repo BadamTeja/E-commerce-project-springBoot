@@ -1,29 +1,25 @@
 pipeline {
     agent any
 
-    options {
-        timestamps()
-    }
-
-    environment {
-        PROJECT_DIR = "JtProject"
+    tools {
+        maven 'Maven3'   // must match Global Tool Config name
+        jdk 'JDK17'
     }
 
     stages {
 
         stage('Build') {
             steps {
-                dir("${PROJECT_DIR}") {
-                    sh 'chmod +x mvnw'
-                    sh './mvnw clean package -DskipTests'
+                dir('JtProject') {
+                    sh 'mvn clean package -DskipTests'
                 }
             }
         }
 
         stage('Test') {
             steps {
-                dir("${PROJECT_DIR}") {
-                    sh './mvnw test'
+                dir('JtProject') {
+                    sh 'mvn test'
                 }
             }
         }
@@ -36,8 +32,8 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo "Deploying application..."
-                // Add real deployment logic here if needed
+                echo "Deploying Application..."
+                sh 'echo Deployment Successful'
             }
         }
     }
@@ -46,13 +42,8 @@ pipeline {
         success {
             echo '✅ Pipeline succeeded!'
         }
-
         failure {
             echo '❌ Pipeline failed!'
-        }
-
-        always {
-            cleanWs()
         }
     }
 }
