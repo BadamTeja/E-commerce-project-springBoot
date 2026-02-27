@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven3'   // must match Global Tool Config name
-        jdk 'JDK17'
-    }
-
     stages {
 
         stage('Build') {
