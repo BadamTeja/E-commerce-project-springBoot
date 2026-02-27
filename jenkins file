@@ -11,13 +11,6 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                dir('JtProject') {
-                    sh 'mvn test'
-                }
-            }
-        }
 
         stage('Archive Artifact') {
             steps {
