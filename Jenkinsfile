@@ -60,7 +60,7 @@ pipeline {
                     IMAGE_NAME=$DOCKER_USER/springboot-app:${BUILD_NUMBER}
                     docker stop springboot-container || true
                     docker rm springboot-container || true
-                    docker run -d -p 8080:8080 --name springboot-container $IMAGE_NAME
+                    docker run -d -p 8082:8080 --name springboot-container $IMAGE_NAME
                     '''
                 }
             }
