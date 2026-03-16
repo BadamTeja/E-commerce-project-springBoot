@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "your-dockerhub-username/springboot-app:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "springboot-app:${BUILD_NUMBER}"
         CONTAINER_NAME = "springboot-container"
     }
 
