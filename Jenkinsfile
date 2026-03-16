@@ -10,14 +10,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                checkout scmGit(
-                    branches: [[name: '*/master']],
-                    extensions: [],
-                    userRemoteConfigs: [[
-                        credentialsId: 'git-creds',
-                        url: 'https://github.com/BadamTeja/E-commerce-project-springBoot.git'
-                    ]]
-                )
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'git-creds', url: 'https://github.com/BadamTeja/E-commerce-project-springBoot.git']])
             }
         }
 
