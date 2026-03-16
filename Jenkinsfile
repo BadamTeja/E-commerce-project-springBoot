@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "springboot-app:${BUILD_NUMBER}"
         CONTAINER_NAME = "springboot-container"
     }
 
@@ -10,7 +9,14 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                checkout scmGit(branches: [[name: '*/master2']], extensions: [], userRemoteConfigs: [[credentialsId: 'git-creds', url: 'https://github.com/BadamTeja/E-commerce-project-springBoot.git']])
+                checkout scmGit(
+                    branches: [[name: '*/master2']],
+                    extensions: [],
+                    userRemoteConfigs: [[
+                        credentialsId: 'git-creds',
+                        url: 'https://github.com/BadamTeja/E-commerce-project-springBoot.git'
+                    ]]
+                )
             }
         }
 
@@ -26,37 +32,37 @@ pipeline {
             }
         }
 
-        stage('Docker Build Image') {
-            steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
-            }
-        }
-
-        stage('Docker Login') {
+        stage('Docker Build, Login & Push') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh '''
+                    IMAGE_NAME=$DOCKER_USER/springboot-app:${BUILD_NUMBER}
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker build -t $IMAGE_NAME .
+                    docker push $IMAGE_NAME
+                    '''
                 }
-            }
-        }
-
-        stage('Push Image to DockerHub') {
-            steps {
-                sh 'docker push $DOCKER_IMAGE'
             }
         }
 
         stage('Deploy Container') {
             steps {
-                sh '''
-                docker stop $CONTAINER_NAME || true
-                docker rm $CONTAINER_NAME || true
-                docker run -d -p 8080:8080 --name $CONTAINER_NAME $DOCKER_IMAGE
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    IMAGE_NAME=$DOCKER_USER/springboot-app:${BUILD_NUMBER}
+                    docker stop springboot-container || true
+                    docker rm springboot-container || true
+                    docker run -d -p 8080:8080 --name springboot-container $IMAGE_NAME
+                    '''
+                }
             }
         }
     }
